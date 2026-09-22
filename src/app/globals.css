@@ -1,0 +1,147 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens.
+ * Every color/radius/shadow the app uses lives here as a CSS variable.
+ * Components reference the variable (bg-surface, text-muted-foreground, etc.)
+ * instead of a raw hex, so flipping data-theme on <html> re-themes the whole
+ * app with zero per-component logic.
+ */
+
+:root {
+  /* Neutral surfaces */
+  --color-background: #fafaf9;
+  --color-foreground: #1c1b1f;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f4f3f2;
+  --color-border: #e5e3e0;
+
+  /* Muted text / subtle backgrounds (tags, dividers) */
+  --color-muted: #f0eeec;
+  --color-muted-foreground: #6b6864;
+
+  /* The one confident accent */
+  --color-accent: #5b4fe9;
+  --color-accent-hover: #4a3fd1;
+  --color-accent-foreground: #ffffff;
+
+  /* Status colors, each with a soft background for banners/toasts */
+  --color-success: #15803d;
+  --color-success-bg: #f0fdf4;
+  --color-warning: #b45309;
+  --color-warning-bg: #fffbeb;
+  --color-danger: #dc2626;
+  --color-danger-bg: #fef2f2;
+
+  --color-focus-ring: #5b4fe9;
+
+  /* Radius scale — one place to make the whole app sharper/rounder */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+
+  /* Soft shadows tinted toward the foreground, never pure black */
+  --shadow-sm: 0 1px 2px 0 rgb(28 27 31 / 0.05);
+  --shadow-md: 0 4px 12px -2px rgb(28 27 31 / 0.08), 0 2px 4px -2px rgb(28 27 31 / 0.04);
+  --shadow-lg: 0 12px 32px -8px rgb(28 27 31 / 0.14), 0 4px 8px -4px rgb(28 27 31 / 0.06);
+}
+
+/* Explicit dark theme (set via data-theme="dark" on <html>) */
+:root[data-theme="dark"] {
+  --color-background: #14131a;
+  --color-foreground: #edebf4;
+  --color-surface: #1c1b24;
+  --color-surface-hover: #24232e;
+  --color-border: #2e2d3a;
+
+  --color-muted: #24232e;
+  --color-muted-foreground: #9c99a8;
+
+  --color-accent: #6c5ce7;
+  --color-accent-hover: #8377ee;
+  --color-accent-foreground: #ffffff;
+
+  --color-success: #4ade80;
+  --color-success-bg: #14291d;
+  --color-warning: #fbbf24;
+  --color-warning-bg: #2a2110;
+  --color-danger: #f87171;
+  --color-danger-bg: #2a1618;
+
+  --color-focus-ring: #8377ee;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 12px 32px -8px rgb(0 0 0 / 0.5), 0 4px 8px -4px rgb(0 0 0 / 0.4);
+}
+
+/* Respect system preference only when the user hasn't picked a theme explicitly */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
+    --color-background: #14131a;
+    --color-foreground: #edebf4;
+    --color-surface: #1c1b24;
+    --color-surface-hover: #24232e;
+    --color-border: #2e2d3a;
+
+    --color-muted: #24232e;
+    --color-muted-foreground: #9c99a8;
+
+    --color-accent: #6c5ce7;
+    --color-accent-hover: #8377ee;
+    --color-accent-foreground: #ffffff;
+
+    --color-success: #4ade80;
+    --color-success-bg: #14291d;
+    --color-warning: #fbbf24;
+    --color-warning-bg: #2a2110;
+    --color-danger: #f87171;
+    --color-danger-bg: #2a1618;
+
+    --color-focus-ring: #8377ee;
+  }
+}
+
+/* Feed the tokens into Tailwind so bg-background, text-accent, rounded-md, etc. work */
+@theme inline {
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+  --color-surface: var(--color-surface);
+  --color-surface-hover: var(--color-surface-hover);
+  --color-border: var(--color-border);
+  --color-muted: var(--color-muted);
+  --color-muted-foreground: var(--color-muted-foreground);
+  --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-accent-foreground: var(--color-accent-foreground);
+  --color-success: var(--color-success);
+  --color-success-bg: var(--color-success-bg);
+  --color-warning: var(--color-warning);
+  --color-warning-bg: var(--color-warning-bg);
+  --color-danger: var(--color-danger);
+  --color-danger-bg: var(--color-danger-bg);
+  --color-focus-ring: var(--color-focus-ring);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+
+  --font-sans: var(--font-geist-sans);
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Consistent, visible focus rings everywhere (keyboard nav) instead of relying on browser default */
+:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
