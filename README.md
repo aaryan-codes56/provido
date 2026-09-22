@@ -1,36 +1,95 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Provido
 
-## Getting Started
+A two-sided service marketplace — providers list services, customers browse,
+book, and pay for them. Built as a from-scratch portfolio project with a real
+auth/role model, a real payment flow (Stripe, test mode), and a design system
+built on intentional tokens rather than defaults.
 
-First, run the development server:
+> Status: **Phase 1 in progress.** This README is updated as each phase lands.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Tech stack
+
+| Layer          | Choice                                   |
+| -------------- | ----------------------------------------- |
+| Framework      | Next.js 16 (App Router, Turbopack)        |
+| Language       | TypeScript                                |
+| Styling        | Tailwind CSS v4 (CSS-based theme, no `tailwind.config.js`) |
+| UI primitives  | Hand-rolled components with `class-variance-authority` + `@radix-ui/react-slot` |
+| Icons          | lucide-react                              |
+| Auth           | Clerk (role-based: provider / customer)   |
+| Database       | PostgreSQL + Prisma ORM                   |
+| Payments       | Stripe Checkout (test mode)               |
+| Deployment     | Vercel + Neon/Railway Postgres            |
+
+## Why these choices
+
+- **Next.js App Router** — Server Components by default, so listing data is
+  fetched on the server and never ships unnecessary JS to the browser; Client
+  Components are used only where interactivity is actually needed.
+- **Prisma + PostgreSQL** — a relational schema fits a marketplace naturally:
+  `User → Listing → Order` are linked records with real constraints, not
+  documents.
+- **Clerk** — handles the hard, security-sensitive parts of auth (password
+  storage, sessions, sign-up/sign-in UI) so the project can focus on the part
+  that's actually interesting: role-based authorization enforced on the
+  server.
+- **Stripe Checkout (test mode)** — the app never touches raw card data.
+  Stripe hosts the payment page; Provido only ever sees a "this succeeded"
+  signal and records an `Order`.
+
+## Design system
+
+Every color, radius, and shadow the app uses is a CSS variable defined once in
+[`src/app/globals.css`](src/app/globals.css) and wired into Tailwind via
+`@theme inline`. Components reference tokens (`bg-surface`, `text-accent`,
+`rounded-lg`) instead of raw hex values or one-off Tailwind colors — so the
+entire visual identity can change from one file.
+
+- **Neutrals**: warm off-white background, near-black (not pure black) text.
+- **One accent**: a confident indigo-violet (`#5B4FE9`), used sparingly for
+  primary actions, links, and active states.
+- **Status colors**: distinct success / warning / danger tokens, each paired
+  with a soft background for banners and toasts.
+
+## Project structure
+
+```
+src/
+  app/               Routes (App Router). Each folder is a URL segment;
+                      page.tsx is the page, layout.tsx is shared shell.
+  components/
+    ui/               Generic, reusable primitives (Button, Card, ...) with
+                      no business logic — they don't know what a "Listing" is.
+    (feature files)   Components that DO know about the domain (ListingCard,
+                      BookingForm, etc.), added as each phase builds them.
+  lib/                Non-visual code: the Prisma client, the Stripe client,
+                      auth helpers, generic utilities (cn()).
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Getting started
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Learn More
+An `.env.example` will be added once Clerk, Prisma, and Stripe are wired up
+in later steps — none of that is required yet for the current phase.
 
-To learn more about Next.js, take a look at the following resources:
+## Roadmap
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [x] **Phase 1, Step 0** — Scaffold (Next.js + TypeScript + Tailwind),
+      design tokens, base UI primitives.
+- [ ] **Phase 1** — Clerk auth with provider/customer roles; providers
+      create/edit/delete listings; customers browse and search. Authorization
+      enforced on the server, not just hidden in the UI.
+- [ ] **Phase 2** — Stripe Checkout (test mode); successful payments recorded
+      as `Order`s.
+- [ ] **Phase 3** — Provider dashboard (listings + earnings), customer
+      dashboard (orders), final UI polish, deployment.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## License
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Personal portfolio project — not licensed for reuse.

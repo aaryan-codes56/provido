@@ -1,28 +1,27 @@
 @import "tailwindcss";
 
 /*
- * Design tokens.
- * Every color/radius/shadow the app uses lives here as a CSS variable.
- * Components reference the variable (bg-surface, text-muted-foreground, etc.)
- * instead of a raw hex, so flipping data-theme on <html> re-themes the whole
- * app with zero per-component logic.
+ * Design tokens — one deliberate palette, not a generic default.
+ * Components reference the variable (bg-surface, text-muted-foreground,
+ * etc.) instead of a raw hex, so the whole app's look lives in one place.
  */
 
 :root {
-  /* Neutral surfaces */
-  --color-background: #fafaf9;
-  --color-foreground: #1c1b1f;
+  /* Neutral surfaces — warm, never pure black/white */
+  --color-background: #fbfaf8;
+  --color-foreground: #18181b;
   --color-surface: #ffffff;
-  --color-surface-hover: #f4f3f2;
-  --color-border: #e5e3e0;
+  --color-surface-hover: #f5f4f1;
+  --color-border: #e7e5e0;
 
   /* Muted text / subtle backgrounds (tags, dividers) */
-  --color-muted: #f0eeec;
+  --color-muted: #f0eee9;
   --color-muted-foreground: #6b6864;
 
-  /* The one confident accent */
+  /* The one confident accent, plus a soft tint for badges/chips/hover states */
   --color-accent: #5b4fe9;
   --color-accent-hover: #4a3fd1;
+  --color-accent-soft: #eeebfc;
   --color-accent-foreground: #ffffff;
 
   /* Status colors, each with a soft background for banners/toasts */
@@ -41,65 +40,9 @@
   --radius-lg: 1rem;
 
   /* Soft shadows tinted toward the foreground, never pure black */
-  --shadow-sm: 0 1px 2px 0 rgb(28 27 31 / 0.05);
-  --shadow-md: 0 4px 12px -2px rgb(28 27 31 / 0.08), 0 2px 4px -2px rgb(28 27 31 / 0.04);
-  --shadow-lg: 0 12px 32px -8px rgb(28 27 31 / 0.14), 0 4px 8px -4px rgb(28 27 31 / 0.06);
-}
-
-/* Explicit dark theme (set via data-theme="dark" on <html>) */
-:root[data-theme="dark"] {
-  --color-background: #14131a;
-  --color-foreground: #edebf4;
-  --color-surface: #1c1b24;
-  --color-surface-hover: #24232e;
-  --color-border: #2e2d3a;
-
-  --color-muted: #24232e;
-  --color-muted-foreground: #9c99a8;
-
-  --color-accent: #6c5ce7;
-  --color-accent-hover: #8377ee;
-  --color-accent-foreground: #ffffff;
-
-  --color-success: #4ade80;
-  --color-success-bg: #14291d;
-  --color-warning: #fbbf24;
-  --color-warning-bg: #2a2110;
-  --color-danger: #f87171;
-  --color-danger-bg: #2a1618;
-
-  --color-focus-ring: #8377ee;
-
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-  --shadow-md: 0 4px 12px -2px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
-  --shadow-lg: 0 12px 32px -8px rgb(0 0 0 / 0.5), 0 4px 8px -4px rgb(0 0 0 / 0.4);
-}
-
-/* Respect system preference only when the user hasn't picked a theme explicitly */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]):not([data-theme="dark"]) {
-    --color-background: #14131a;
-    --color-foreground: #edebf4;
-    --color-surface: #1c1b24;
-    --color-surface-hover: #24232e;
-    --color-border: #2e2d3a;
-
-    --color-muted: #24232e;
-    --color-muted-foreground: #9c99a8;
-
-    --color-accent: #6c5ce7;
-    --color-accent-hover: #8377ee;
-    --color-accent-foreground: #ffffff;
-
-    --color-success: #4ade80;
-    --color-success-bg: #14291d;
-    --color-warning: #fbbf24;
-    --color-warning-bg: #2a2110;
-    --color-danger: #f87171;
-    --color-danger-bg: #2a1618;
-
-    --color-focus-ring: #8377ee;
-  }
+  --shadow-sm: 0 1px 2px 0 rgb(24 24 27 / 0.05);
+  --shadow-md: 0 4px 12px -2px rgb(24 24 27 / 0.08), 0 2px 4px -2px rgb(24 24 27 / 0.04);
+  --shadow-lg: 0 12px 32px -8px rgb(24 24 27 / 0.14), 0 4px 8px -4px rgb(24 24 27 / 0.06);
 }
 
 /* Feed the tokens into Tailwind so bg-background, text-accent, rounded-md, etc. work */
@@ -113,6 +56,7 @@
   --color-muted-foreground: var(--color-muted-foreground);
   --color-accent: var(--color-accent);
   --color-accent-hover: var(--color-accent-hover);
+  --color-accent-soft: var(--color-accent-soft);
   --color-accent-foreground: var(--color-accent-foreground);
   --color-success: var(--color-success);
   --color-success-bg: var(--color-success-bg);

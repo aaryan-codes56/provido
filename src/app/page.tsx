@@ -1,25 +1,36 @@
 import { Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/theme-toggle";
+
+const swatches = [
+  { name: "background", className: "bg-background border border-border" },
+  { name: "surface", className: "bg-surface border border-border" },
+  { name: "muted", className: "bg-muted" },
+  { name: "accent", className: "bg-accent" },
+  { name: "success", className: "bg-success" },
+  { name: "warning", className: "bg-warning" },
+  { name: "danger", className: "bg-danger" },
+];
 
 export default function Home() {
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-10 px-6 py-10">
+    <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-16 px-6 py-12">
       <header className="flex items-center justify-between">
-        <span className="text-lg font-semibold">ServiceHub</span>
-        <ThemeToggle />
+        <span className="text-lg font-semibold tracking-tight">Provido</span>
+        <span className="text-sm text-muted-foreground">Design system preview</span>
       </header>
 
-      <section className="flex flex-col gap-3">
-        <h1 className="text-3xl font-semibold tracking-tight">
-          Design tokens, step 0
+      <section className="flex flex-col gap-4">
+        <span className="inline-flex w-fit items-center rounded-sm bg-accent-soft px-2.5 py-1 text-xs font-medium text-accent">
+          Phase 1 · Step 0
+        </span>
+        <h1 className="max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
+          Book trusted local services, without the guesswork.
         </h1>
         <p className="max-w-xl text-muted-foreground">
-          This page exists to prove the token system works before we build
-          anything real: neutral surfaces, one accent color, consistent
-          radius/shadow, and a light/dark toggle — all driven by CSS
-          variables, no per-component overrides.
+          Provido is a two-sided marketplace: providers list what they do,
+          customers browse, book, and pay. This page exists to prove the
+          design system holds up before we build anything real on top of it.
         </p>
       </section>
 
@@ -34,7 +45,7 @@ export default function Home() {
       </section>
 
       <section className="grid gap-6 sm:grid-cols-2">
-        <article className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5 shadow-md">
+        <article className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5 shadow-md transition-shadow hover:shadow-lg">
           <div className="flex items-center justify-between">
             <span className="inline-flex items-center rounded-sm bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
               Home Repair
@@ -71,6 +82,18 @@ export default function Home() {
             </div>
           </div>
         </article>
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-sm font-medium text-muted-foreground">Palette</h2>
+        <div className="flex flex-wrap gap-4">
+          {swatches.map((swatch) => (
+            <div key={swatch.name} className="flex flex-col items-center gap-2">
+              <div className={`h-12 w-12 rounded-md ${swatch.className}`} />
+              <span className="text-xs text-muted-foreground">{swatch.name}</span>
+            </div>
+          ))}
+        </div>
       </section>
     </div>
   );
