@@ -1,100 +1,105 @@
-import { Star } from "lucide-react";
+import { Search } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { ListingCard } from "@/components/listing-card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { CATEGORIES } from "@/lib/categories";
+import { prisma } from "@/lib/prisma";
 
-const swatches = [
-  { name: "background", className: "bg-background border border-border" },
-  { name: "surface", className: "bg-surface border border-border" },
-  { name: "muted", className: "bg-muted" },
-  { name: "accent", className: "bg-accent" },
-  { name: "success", className: "bg-success" },
-  { name: "warning", className: "bg-warning" },
-  { name: "danger", className: "bg-danger" },
-];
+// This page reads `searchParams` (the ?q=...&category=... part of the URL)
+// and uses it to filter directly in the Prisma query — there's no client
+// JS involved in searching at all. The <form method="GET"> below just
+// submits a normal browser navigation to a new URL; this Server Component
+// re-runs on the server for that URL and renders the filtered results.
+export default async function HomePage({ searchParams }: PageProps<"/">) {
+  const params = await searchParams;
+  const query = typeof params.q === "string" ? params.q.trim() : "";
+  const selectedCategory =
+    typeof params.category === "string" ? params.category : "";
 
-export default function Home() {
+  const listings = await prisma.listing.findMany({
+    where: {
+      ...(query
+        ? {
+            OR: [
+              { title: { contains: query, mode: "insensitive" as const } },
+              {
+                description: {
+                  contains: query,
+                  mode: "insensitive" as const,
+                },
+              },
+            ],
+          }
+        : {}),
+      ...(selectedCategory ? { category: selectedCategory } : {}),
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-16 px-6 py-12">
-      <header className="flex items-center justify-between">
-        <span className="text-lg font-semibold tracking-tight">Provido</span>
-        <span className="text-sm text-muted-foreground">Design system preview</span>
-      </header>
-
-      <section className="flex flex-col gap-4">
-        <span className="inline-flex w-fit items-center rounded-sm bg-accent-soft px-2.5 py-1 text-xs font-medium text-accent">
-          Phase 1 · Step 0
-        </span>
-        <h1 className="max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">
-          Book trusted local services, without the guesswork.
+    <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-6 py-12">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl font-semibold tracking-tight">
+          Book trusted local services
         </h1>
-        <p className="max-w-xl text-muted-foreground">
-          Provido is a two-sided marketplace: providers list what they do,
-          customers browse, book, and pay. This page exists to prove the
-          design system holds up before we build anything real on top of it.
+        <p className="text-muted-foreground">
+          Browse listings from providers ready to help.
         </p>
-      </section>
+      </div>
 
-      <section className="flex flex-wrap gap-3">
-        <Button variant="primary">Primary action</Button>
-        <Button variant="secondary">Secondary</Button>
-        <Button variant="ghost">Ghost</Button>
-        <Button variant="danger">Danger</Button>
-        <Button variant="primary" disabled>
-          Disabled
-        </Button>
-      </section>
+      <form method="GET" className="flex flex-wrap gap-3">
+        <div className="relative min-w-[200px] flex-1">
+          <Search
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden="true"
+          />
+          <input
+            type="search"
+            name="q"
+            defaultValue={query}
+            placeholder="Search services…"
+            aria-label="Search services"
+            className="h-10 w-full rounded-md border border-border bg-surface pl-9 pr-3 text-sm"
+          />
+        </div>
+        <select
+          name="category"
+          defaultValue={selectedCategory}
+          aria-label="Filter by category"
+          className="h-10 rounded-md border border-border bg-surface px-3 text-sm"
+        >
+          <option value="">All categories</option>
+          {CATEGORIES.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
+        <button
+          type="submit"
+          className="h-10 rounded-md bg-accent px-4 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-hover"
+        >
+          Search
+        </button>
+      </form>
 
-      <section className="grid gap-6 sm:grid-cols-2">
-        <article className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5 shadow-md transition-shadow hover:shadow-lg">
-          <div className="flex items-center justify-between">
-            <span className="inline-flex items-center rounded-sm bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
-              Home Repair
-            </span>
-            <span className="flex items-center gap-1 text-sm text-muted-foreground">
-              <Star className="h-3.5 w-3.5 fill-current text-accent" />
-              4.9
-            </span>
-          </div>
-          <h2 className="font-medium">Sample listing card</h2>
-          <p className="text-sm text-muted-foreground">
-            This is what a service listing will look like — image, category
-            tag, rating, price.
-          </p>
-          <div className="flex items-center justify-between pt-2">
-            <span className="text-lg font-semibold">$85</span>
-            <Button size="sm" variant="secondary">
-              View details
-            </Button>
-          </div>
-        </article>
-
-        <article className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5 shadow-md">
-          <h2 className="font-medium">Status colors</h2>
-          <div className="flex flex-col gap-2">
-            <div className="rounded-sm bg-success-bg px-3 py-2 text-sm text-success">
-              Payment succeeded
-            </div>
-            <div className="rounded-sm bg-warning-bg px-3 py-2 text-sm text-warning">
-              Listing pending review
-            </div>
-            <div className="rounded-sm bg-danger-bg px-3 py-2 text-sm text-danger">
-              Payment failed
-            </div>
-          </div>
-        </article>
-      </section>
-
-      <section className="flex flex-col gap-3">
-        <h2 className="text-sm font-medium text-muted-foreground">Palette</h2>
-        <div className="flex flex-wrap gap-4">
-          {swatches.map((swatch) => (
-            <div key={swatch.name} className="flex flex-col items-center gap-2">
-              <div className={`h-12 w-12 rounded-md ${swatch.className}`} />
-              <span className="text-xs text-muted-foreground">{swatch.name}</span>
-            </div>
+      {listings.length === 0 ? (
+        <EmptyState
+          icon={Search}
+          title="No services found"
+          description={
+            query || selectedCategory
+              ? "Try a different search term or category."
+              : "No listings have been published yet — check back soon."
+          }
+        />
+      ) : (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {listings.map((listing) => (
+            <ListingCard key={listing.id} {...listing} />
           ))}
         </div>
-      </section>
+      )}
     </div>
   );
 }

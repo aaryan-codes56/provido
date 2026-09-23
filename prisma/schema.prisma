@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  PROVIDER
+  CUSTOMER
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
+// Mirrors a Clerk identity in our own database so we can attach relations
+// (listings, orders) to it with real foreign keys. `role` is nullable
+// because a brand-new user has an identity before they've chosen a role —
+// they're routed to /onboarding until this is set.
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  role      Role?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listings Listing[] @relation("ProviderListings")
+  orders   Order[]   @relation("CustomerOrders")
+}
+
+model Listing {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  // Cents, not dollars. Floats can't represent money exactly (0.1 + 0.2 !=
+  // 0.3 in binary floating point), so every price/amount in this schema is
+  // an integer count of cents. $85.00 is stored as 8500.
+  priceCents  Int
+  category    String
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  providerId String
+  provider   User   @relation("ProviderListings", fields: [providerId], references: [id], onDelete: Cascade)
+
+  orders Order[]
+
+  @@index([category])
+  @@index([providerId])
+}
+
+model Order {
+  id     String      @id @default(cuid())
+  status OrderStatus @default(PENDING)
+  // Snapshot of the listing's price in cents at the moment of purchase, so a
+  // later price change on the listing never rewrites the price of a past order.
+  amountCents Int
+
+  stripeCheckoutSessionId String? @unique
+  stripePaymentIntentId   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id])
+
+  customerId String
+  customer   User   @relation("CustomerOrders", fields: [customerId], references: [id])
+
+  @@index([customerId])
+  @@index([listingId])
+}
